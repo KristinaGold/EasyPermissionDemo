@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    id("maven-publish")
 }
 
 android {
@@ -27,6 +28,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    publishing {
+        singleVariant("release")
+
+    }
+
+
 }
 
 dependencies {
@@ -40,3 +48,17 @@ dependencies {
     //Google location services
     implementation("com.google.android.gms:play-services-location:21.3.0")
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            register<MavenPublication>("release") {
+                groupId = "com.github.KristinaGold"
+                artifactId = "easy-permissions"
+                version = "1.0.2"
+
+                from(components["release"])
+            }
+        }
+    }
+    }
