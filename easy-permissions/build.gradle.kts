@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.jetbrainsComposeCompiler)
 }
 
 android {
@@ -14,9 +13,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-    }
-    buildFeatures {
-        compose = true
     }
     buildTypes {
         release {
@@ -40,10 +36,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    //Compose
-    implementation("androidx.compose.runtime:runtime:1.7.0")
-    implementation("androidx.compose.ui:ui:1.7.0")
 
     //Google location services
     implementation("com.google.android.gms:play-services-location:21.3.0")

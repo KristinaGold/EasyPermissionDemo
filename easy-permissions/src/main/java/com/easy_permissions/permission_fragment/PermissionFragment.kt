@@ -45,7 +45,7 @@ internal class PermissionFragment : Fragment() {
 
 
     /**
-     * 🔥 תופעל ידנית רק כשהספרייה מסיימת את כל סבב הבקשות
+     * 🔥 Will be triggered manually only when the library finishes the entire request cycle
      */
     fun cleanUp() {
         if (isAdded && !parentFragmentManager.isStateSaved) {

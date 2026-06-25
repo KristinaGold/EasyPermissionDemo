@@ -59,25 +59,25 @@ object EasyPermission {
         onResult: (Map<String, Boolean>) -> Unit
     ) {
         val finalResults = mutableMapOf<String, Boolean>()
-        val fragment = getOrCreateFragment(activity) // יצירה פעם אחת בלבד!
+        val fragment = getOrCreateFragment(activity) // Create once only!
 
-        // מריצים את הלולאה ומעבירים את אותו ה-Fragment המקורי לאורך כל הדרך
+        // Run the loop and pass the same original Fragment all the way
         executeSequentialRequests(activity, fragment, permissions, 0, finalResults) { completedMap ->
 
-            // 1. ניקוי סופי של ה-Fragment מהמסך - רק עכשיו כשהכל נגמר!
+            // 1. Final cleanup of the Fragment from the screen - only now when everything is finished!
             fragment.cleanUp()
 
-            // 2. החזרת התוצאה המלאה למפתח
+            // 2. Return the full result to the developer
             onResult(completedMap)
 
-            // 3. איסוף כל מה שחסום לצמיתות
+            // 3. Collecting everything that is permanently blocked
             val permanentlyDeniedList = completedMap.entries
                 .filter { (permission, isGranted) ->
                     !isGranted && !shouldShowRationale(activity, permission)
                 }
                 .map { (permission, _) -> permission }
 
-            // 4. הצגת דיאלוג מרוכז
+            // 4. Displaying a centralized dialog
             if (permanentlyDeniedList.isNotEmpty()) {
                 val cleanPermissionNames = permanentlyDeniedList.map { it.substringAfterLast(".") }
                 showSettingsChoiceDialog(activity, cleanPermissionNames) {
@@ -88,7 +88,7 @@ object EasyPermission {
     }
 
     /**
-     * לולאה טורית חסינת Lifecycle
+     * Lifecycle-safe sequential loop
      */
     private fun executeSequentialRequests(
         activity: FragmentActivity,
@@ -98,7 +98,7 @@ object EasyPermission {
         currentResults: MutableMap<String, Boolean>,
         onSequenceFinished: (Map<String, Boolean>) -> Unit
     ) {
-        // תנאי עצירה: הגענו לסוף הרשימה
+        // Stopping condition: We reached the end of the list
         if (index >= permissions.size) {
             onSequenceFinished(currentResults)
             return
@@ -106,11 +106,11 @@ object EasyPermission {
 
         val currentPermission = permissions[index]
 
-        // שליחה דרך ה-Fragment הקיים בלי ליצור קבצים ובלי ליצור פראגמנטים מחדש
+        // Sending through the existing Fragment without recreating fragments
         fragment.launchPermission(currentPermission) { isGranted ->
             currentResults[currentPermission] = isGranted
 
-            // מעבר מיידי להרשאה הבאה
+            // Immediate transition to the next permission
             executeSequentialRequests(activity, fragment, permissions, index + 1, currentResults, onSequenceFinished)
         }
     }

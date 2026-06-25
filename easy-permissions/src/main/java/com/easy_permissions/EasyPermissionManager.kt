@@ -1,11 +1,6 @@
 package com.easy_permissions
 
 import android.content.Context
-import android.content.ContextWrapper
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.fragment.app.FragmentActivity
 import com.easy_permissions.permission_enums.PermissionStatus
 import com.easy_permissions.permission_managers.EasyAudioRecorder
@@ -19,31 +14,31 @@ import com.easy_permissions.permission_managers.NotificationManager
  * FOR COMPOSE ONLY:
  * Helper function that allows obtaining a Compose-adapted permission manager.
  */
-@Composable
-fun composablePermissionManager(): EasyPermissionManager {
-    val context = LocalContext.current
-    val isInspectionMode = LocalInspectionMode.current
-
-    // Attempting to find the FragmentActivity from the Context
-    val activity = remember(context) {
-        var currentContext = context
-        while (currentContext is ContextWrapper) {
-            if (currentContext is FragmentActivity) break
-            currentContext = currentContext.baseContext
-        }
-        currentContext as? FragmentActivity
-    }
-
-    // If we are not in Preview and there is no Activity, throw an error
-    if (activity == null && !isInspectionMode) {
-        throw IllegalStateException("EasyPermission requires your Activity to extend FragmentActivity")
-    }
-
-    // Returning an object that exposes the library's functions in a clean way
-    return remember(context, activity) {
-        EasyPermissionManager(context, activity)
-    }
-}
+//@Composable
+//fun composablePermissionManager(): EasyPermissionManager {
+//    val context = LocalContext.current
+//    val isInspectionMode = LocalInspectionMode.current
+//
+//    // Attempting to find the FragmentActivity from the Context
+//    val activity = remember(context) {
+//        var currentContext = context
+//        while (currentContext is ContextWrapper) {
+//            if (currentContext is FragmentActivity) break
+//            currentContext = currentContext.baseContext
+//        }
+//        currentContext as? FragmentActivity
+//    }
+//
+//    // If we are not in Preview and there is no Activity, throw an error
+//    if (activity == null && !isInspectionMode) {
+//        throw IllegalStateException("EasyPermission requires your Activity to extend FragmentActivity")
+//    }
+//
+//    // Returning an object that exposes the library's functions in a clean way
+//    return remember(context, activity) {
+//        EasyPermissionManager(context, activity)
+//    }
+//}
 
 /**
  * FOR BOTH COMPOSE & XML:

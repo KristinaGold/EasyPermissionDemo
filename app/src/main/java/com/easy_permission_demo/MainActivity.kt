@@ -1,6 +1,7 @@
 package com.easy_permission_demo
 
 import android.Manifest
+import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.media.MediaPlayer
 import android.net.Uri
@@ -20,17 +21,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import com.easy_permissions.EasyPermissionManager
 import com.easy_permissions.permission_enums.PermissionStatus
 import com.easy_permissions.permission_enums.PermissionType
-import com.easy_permissions.composablePermissionManager
 import java.io.File
 import kotlin.text.substringAfterLast
 
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -69,12 +71,43 @@ class MainActivity : ComponentActivity() {
                 onBack = { currentScreen = Screen.DASHBOARD })
         }
     }
+    @Composable
+fun composablePermissionManager(): EasyPermissionManager {
+    val context = LocalContext.current
+    val isInspectionMode = LocalInspectionMode.current
+
+    // Attempting to find the FragmentActivity from the Context
+    val activity = remember(context) {
+        var currentContext = context
+        while (currentContext is ContextWrapper) {
+            if (currentContext is FragmentActivity) break
+            currentContext = currentContext.baseContext
+        }
+        currentContext as? FragmentActivity
+    }
+
+    // If we are not in Preview and there is no Activity, throw an error
+    if (activity == null && !isInspectionMode) {
+        throw IllegalStateException("EasyPermission requires your Activity to extend FragmentActivity")
+    }
+
+    // Returning an object that exposes the library's functions in a clean way
+    return remember(context, activity) {
+        EasyPermissionManager(context, activity)
+    }
+}
 
 
     @Composable
     fun DashboardScreen(onNavigate: (Screen) -> Unit) {
-        val permissionManager = composablePermissionManager()
+        //val permissionManager = composablePermissionManager()
         val context = LocalContext.current
+        val activity = context as? FragmentActivity
+
+        // The developer creates your manager in a generic and smooth way:
+        val permissionManager = remember(context) {
+            EasyPermissionManager(context, activity)
+        }
 
         // state to hold the log result of the mass request
         var massRequestResult by remember { mutableStateOf("") }
@@ -228,10 +261,15 @@ class MainActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun CameraDemoScreen(onBack: () -> Unit = {}) {
+        val context = LocalContext.current
+        val activity = context as? FragmentActivity
+
+        // The developer creates your manager in a generic and smooth way:
         val permissionManager = composablePermissionManager()
+        //remember(context) {
+            //EasyPermissionManager(context, activity)}
         var cameraStatus by remember { mutableStateOf("Permission was not checked yet.") }
         var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
-        val context = LocalContext.current
         val isCameraGranted = permissionManager.camera.isCameraPermissionGranted()
 
         Column(
@@ -329,7 +367,10 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun LocationDemoScreen(onBack: () -> Unit = {}) {
         val context = LocalContext.current
-        val permissionManager = composablePermissionManager()
+        val activity = context as? FragmentActivity
+        val permissionManager = remember(context) {
+            EasyPermissionManager(context, activity)
+        }
         var statusText by remember { mutableStateOf("") }
         var locationText by remember { mutableStateOf("") }
         var distanceText by remember { mutableStateOf("") }
@@ -435,8 +476,11 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun StorageDemoScreen(onBack: () -> Unit) {
-        val permissionManager = composablePermissionManager()
-
+        val context = LocalContext.current
+        val activity = context as? FragmentActivity
+        val permissionManager = remember(context) {
+            EasyPermissionManager(context, activity)
+        }
         // State to hold information about the selected file
         var fileInfoText by remember { mutableStateOf("No file selected yet") }
         var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
@@ -572,8 +616,10 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AudioDemoScreen(onBack: () -> Unit) {
         val context = LocalContext.current
-        val permissionManager = composablePermissionManager()
-
+        val activity = context as? FragmentActivity
+        val permissionManager = remember(context) {
+            EasyPermissionManager(context, activity)
+        }
         var recordingStatus by remember { mutableStateOf("Status: Waiting") }
         var isRecording by remember { mutableStateOf(false) }
 
@@ -698,7 +744,11 @@ class MainActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun NotificationsDemoScreen(onBack: () -> Unit = {}) {
-        val permissionManager = composablePermissionManager()
+        val context = LocalContext.current
+        val activity = context as? FragmentActivity
+        val permissionManager = remember(context) {
+            EasyPermissionManager(context, activity)
+        }
         val isPermissionGranted = permissionManager.notifications.isNotificationPermissionGranted()
         var notificationStatusText by remember { mutableStateOf("") }
 
@@ -758,7 +808,11 @@ class MainActivity : ComponentActivity() {
 // ==========================================
     @Composable
     fun VideoDemoScreen(onBack: () -> Unit = {}) {
-        val permissionManager = composablePermissionManager()
+        val context = LocalContext.current
+        val activity = context as? FragmentActivity
+        val permissionManager = remember(context) {
+            EasyPermissionManager(context, activity)
+        }
         var videoStatus by remember { mutableStateOf("Status: Waiting") }
         var capturedVideoUri by remember { mutableStateOf<Uri?>(null) }
 
