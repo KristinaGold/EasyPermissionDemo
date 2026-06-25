@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = "com.easy_permissions"
     compileSdk {
-        version = release(37)
+        version = release(35)
     }
 
     defaultConfig {
@@ -55,7 +55,7 @@ afterEvaluate {
             register<MavenPublication>("release") {
                 groupId = "com.github.KristinaGold"
                 artifactId = "easy-permissions"
-                version = "1.0.2"
+                version = "1.0.3"
 
                 from(components["release"])
             }
