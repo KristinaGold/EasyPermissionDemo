@@ -37,8 +37,8 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```
 dependencies {
-    implementation("com.github.kristinagold:easy-permissions:1.0.0")
-}
+	        implementation("com.github.KristinaGold:EasyPermissionDemo:1.0.0")
+	}
 ```
 ---
 
