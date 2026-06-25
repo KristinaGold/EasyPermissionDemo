@@ -55,7 +55,7 @@ afterEvaluate {
             register<MavenPublication>("release") {
                 groupId = "com.github.KristinaGold"
                 artifactId = "easy-permissions"
-                version = "1.0.3"
+                version = "1.0.6"
 
                 from(components["release"])
             }
