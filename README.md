@@ -37,7 +37,7 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```
 dependencies {
-	        implementation("com.github.KristinaGold:EasyPermissionDemo:1.0.0")
+	        implementation("com.github.KristinaGold:EasyPermissionDemo:1.0.8")
 	}
 ```
 ---
@@ -46,14 +46,130 @@ dependencies {
 Initialize the manager once in your screen/activity context:
 
 ### Jetpack Compose Integration
+
+Our library features built-in architecture-safe lifecycle guards (`DefaultLifecycleObserver`). This means you can safely instantiate and trigger permission sequences even during early lifecycle stages (like `onCreate`) inside your Compose components without causing race conditions or missing callbacks.
+
+Since the underlying framework hooks into Android's `supportFragmentManager` using a headless setup, your host activity must extend `FragmentActivity` (or `AppCompatActivity`).
+
+### 1. Update your Hosting Activity
+Ensure your primary application window manager extends `FragmentActivity` instead of the standard naked `ComponentActivity`:
+
 ```kotlin
-val permissionManager = composePermissionManager()
+import androidx.fragment.app.FragmentActivity
+
+class MainActivity : FragmentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MyMainComposeApp()
+        }
+    }
+}
+```
+
+### 2. Add the Composable Extension Utility
+   Drop this standard, state-remembering extension helper into your project. It cleanly extracts the active context root and wraps your manager across UI recompositions:
+
+```kotlin
+import android.content.ContextWrapper
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.fragment.app.FragmentActivity
+import com.easy_permissions.EasyPermissionManager
+
+/**
+ * A highly optimized Composable constructor that safely instantiates and remembers 
+ * the EasyPermissionManager instance across UI recompositions.
+ */
+@Composable
+fun composePermissionManager(): EasyPermissionManager {
+    val context = LocalContext.current
+    val isInspectionMode = LocalInspectionMode.current
+
+    // Safely extract the hosting FragmentActivity out of the Composable Context tree
+    val activity = remember(context) {
+        var currentContext = context
+        while (currentContext is ContextWrapper) {
+            if (currentContext is FragmentActivity) break
+            currentContext = currentContext.baseContext
+        }
+        currentContext as? FragmentActivity
+    }
+
+    if (activity == null && !isInspectionMode) {
+        throw IllegalStateException("EasyPermission requires your Activity to extend FragmentActivity")
+    }
+
+    return remember(context, activity) {
+        EasyPermissionManager(context, activity)
+    }
+}
+```
+
+### 3. Usage Example inside a Composable Screen
+   Now you can fire single or multiple permission gates smoothly within any click handler or side-effect block:
+```kotlin
+@Composable
+fun CameraFeatureScreen() {
+    // Instantiate the toolkit seamlessly
+    val permissionManager = composePermissionManager()
+
+    Button(onClick = {
+        // Request specific hardware permissions with instant functional callbacks
+        permissionManager.camera.requestCameraPermission { status ->
+            when (status) {
+                PermissionStatus.ACCESS_GRANTED -> {
+                    // 📸 Camera available! Fire your viewfinders and secure capture pipelines
+                }
+                PermissionStatus.ACCESS_DENIED -> {
+                    // Handle soft denial gracefully
+                }
+            }
+        }
+    }) {
+        Text("Launch Secure Camera Channel")
+    }
+}
 ```
 
 
 ### Traditional XML Views Integration
+
+For traditional Android View layouts (XML), utilizing the library is straightforward. Thanks to the built-in lifecycle-safety layers, you can initialize and invoke permission gates inside `onCreate()` or within UI listeners without tracking fragment attachments manually.
+
+### Prerequisites
+Your hosting Activity must extend `FragmentActivity` (or `AppCompatActivity`) to allow the underlying headless engine to safely bridge communication hooks.
+
+### Usage Example
 ```kotlin
-val permissionManager = EasyPermissionManager(this, this)
+import android.os.Bundle
+import androidx.fragment.app.FragmentActivity
+import com.easy_permissions.EasyPermissionManager
+import com.easy_permissions.permission_enums.PermissionStatus
+
+class MainActivity : FragmentActivity() {
+
+    private lateinit var permissionManager: EasyPermissionManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        // 1. Initialize the manager instance
+        permissionManager = EasyPermissionManager(this, this)
+
+        // 2. Safe execution directly inside onCreate()
+        permissionManager.camera.requestCameraPermission { status ->
+            if (status == PermissionStatus.ACCESS_GRANTED) {
+                // 📸 Camera access cleared! Open your custom viewfinders smoothly
+            } else {
+                // Handle denial state gracefully
+            }
+        }
+    }
+}
 ```
 
 ## 🧩 Architectural Concepts & Results
@@ -153,7 +269,7 @@ This component requests permissions individually in memory, which completely pre
 ### Single Generic Request
 
 ```kotlin
-permissionManager.requestGeneric(Manifest.permission.READ_CONTACTS) { result ->
+permissionManager.request(Manifest.permission.READ_CONTACTS) { result ->
     when (result) {
         EasyPermissionResult.ACCESS_GRANTED -> { /* Access contacts safely */ }
         EasyPermissionResult.ACCESS_DENIED_BY_USER -> { /* Handle soft decline */ }
