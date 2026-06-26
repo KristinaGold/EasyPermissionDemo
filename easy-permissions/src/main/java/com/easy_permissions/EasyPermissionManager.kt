@@ -10,35 +10,6 @@ import com.easy_permissions.permission_managers.EasyVideoManager
 import com.easy_permissions.permission_managers.LocationManager
 import com.easy_permissions.permission_managers.NotificationManager
 
-/**
- * FOR COMPOSE ONLY:
- * Helper function that allows obtaining a Compose-adapted permission manager.
- */
-//@Composable
-//fun composablePermissionManager(): EasyPermissionManager {
-//    val context = LocalContext.current
-//    val isInspectionMode = LocalInspectionMode.current
-//
-//    // Attempting to find the FragmentActivity from the Context
-//    val activity = remember(context) {
-//        var currentContext = context
-//        while (currentContext is ContextWrapper) {
-//            if (currentContext is FragmentActivity) break
-//            currentContext = currentContext.baseContext
-//        }
-//        currentContext as? FragmentActivity
-//    }
-//
-//    // If we are not in Preview and there is no Activity, throw an error
-//    if (activity == null && !isInspectionMode) {
-//        throw IllegalStateException("EasyPermission requires your Activity to extend FragmentActivity")
-//    }
-//
-//    // Returning an object that exposes the library's functions in a clean way
-//    return remember(context, activity) {
-//        EasyPermissionManager(context, activity)
-//    }
-//}
 
 /**
  * FOR BOTH COMPOSE & XML:

@@ -1,0 +1,3 @@
+-keep class com.easy_permissions.** { *; }
+-keepclassmembers class com.easy_permissions.** { *; }
+-keepattributes Signature, InnerClasses, EnclosingMethod

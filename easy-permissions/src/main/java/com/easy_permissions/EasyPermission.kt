@@ -43,8 +43,8 @@ object EasyPermission {
                     onResult(PermissionStatus.ACCESS_DENIED_BY_USER)
                 }
             }
+            fragment.cleanUp()
         }
-        fragment.cleanUp()
     }
 
 
@@ -62,7 +62,13 @@ object EasyPermission {
         val fragment = getOrCreateFragment(activity) // Create once only!
 
         // Run the loop and pass the same original Fragment all the way
-        executeSequentialRequests(activity, fragment, permissions, 0, finalResults) { completedMap ->
+        executeSequentialRequests(
+            activity,
+            fragment,
+            permissions,
+            0,
+            finalResults
+        ) { completedMap ->
 
             // 1. Final cleanup of the Fragment from the screen - only now when everything is finished!
             fragment.cleanUp()
@@ -111,21 +117,16 @@ object EasyPermission {
             currentResults[currentPermission] = isGranted
 
             // Immediate transition to the next permission
-            executeSequentialRequests(activity, fragment, permissions, index + 1, currentResults, onSequenceFinished)
+            executeSequentialRequests(
+                activity,
+                fragment,
+                permissions,
+                index + 1,
+                currentResults,
+                onSequenceFinished
+            )
         }
     }
-    // Existing function for a single permission (remains as is)
-
-    internal fun requestOnce(
-        activity: FragmentActivity,
-        permission: String,
-        onResult: (Boolean) -> Unit
-    ) {
-
-        val fragment = getOrCreateFragment(activity)
-        fragment.launchPermission(permission, onResult)
-    }
-
 
 // Requesting multiple permissions simultaneously
 
@@ -136,7 +137,10 @@ object EasyPermission {
 
     ) {
         val fragment = getOrCreateFragment(activity)
-        fragment.launchMultiplePermissions(permissions.toTypedArray(), onResult)
+        fragment.launchMultiplePermissions(permissions.toTypedArray()) {
+            onResult(it)
+            fragment.cleanUp()
+        }
     }
 
     /**
@@ -211,7 +215,7 @@ object EasyPermission {
             fragment = PermissionFragment()
             fragmentManager.beginTransaction()
                 .add(fragment, TAG)
-                .commitNowAllowingStateLoss()
+                .commitAllowingStateLoss()
         }
         return fragment
     }

@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = "com.easy_permissions"
     compileSdk {
-        version = release(35)
+        version = release(36)
     }
 
     defaultConfig {
@@ -47,6 +47,8 @@ dependencies {
 
     //Google location services
     implementation("com.google.android.gms:play-services-location:21.3.0")
+    //lifecycle
+    implementation("androidx.lifecycle:lifecycle-common-java8:2.8.2")
 }
 
 afterEvaluate {
@@ -55,10 +57,10 @@ afterEvaluate {
             register<MavenPublication>("release") {
                 groupId = "com.github.KristinaGold"
                 artifactId = "easy-permissions"
-                version = "1.0.7"
+                version = "1.0.8"
 
                 from(components["release"])
             }
         }
     }
-    }
+}

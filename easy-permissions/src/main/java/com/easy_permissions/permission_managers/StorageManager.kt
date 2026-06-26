@@ -34,8 +34,7 @@ class EasyStorageManager(private val context: Context, private val activity: Fra
                 results[PermissionType.IMAGES_AND_GALLERY.toManifestString()] ?: false
             val videoGranted =
                 results[PermissionType.VIDEO_AND_GALLERY.toManifestString()] ?: false
-            val audioGranted = results[PermissionType.AUDIO_AND_GALLERY.toManifestString()] ?: false
-            if (imagesGranted && videoGranted && audioGranted) {
+            if (imagesGranted && videoGranted) {
                 onResult(PermissionStatus.ACCESS_GRANTED)
             } else {
                 onResult(PermissionStatus.ACCESS_DENIED_BY_USER)

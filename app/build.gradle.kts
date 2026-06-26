@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.easy_permission_demo"
     compileSdk {
-        version = release(35)
+        version = release(36)
     }
 
     defaultConfig {
