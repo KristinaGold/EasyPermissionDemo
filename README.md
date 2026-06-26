@@ -294,6 +294,9 @@ permissionManager.requestMultiple(genericList) { totalResultsMap ->
 }
 ```
 
+## Demo
+![Library Demo](Demo%20video/EasyPermissionDemo.mp4)
+
 ## 📜 License
 MIT License
 
